@@ -6,7 +6,7 @@ from selenium.common.exceptions import NoSuchElementException
 import re
 import pandas as pd
 import csv
-
+#teste git
 
 url_code = 'https://www.skoob.com.br/login/'
 
@@ -144,6 +144,8 @@ tabela_consolidada = pd.DataFrame(
     })
     
 tabela_consolidada.to_csv('C:/Users/mathe/OneDrive/Documentos/python_bot/Bot/livros.csv', index=False)
+
+
 
 
 
