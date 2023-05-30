@@ -6,17 +6,20 @@ from selenium.common.exceptions import NoSuchElementException
 import re
 import pandas as pd
 import csv
-#teste git
+from datetime import datetime
 
 url_code = 'https://www.skoob.com.br/login/'
 
+PATH = 'C:/GIT/Skoob_Leituras/Driver/chromedriver.exe'
 options = webdriver.ChromeOptions()
 options.add_experimental_option("detach", True)
-driver = webdriver.Chrome(chrome_options=options,service=Service(ChromeDriverManager().install()))
+driver = webdriver.Chrome(chrome_options=options, service=Service(ChromeDriverManager().install()))
+
+#driver = webdriver.Chrome(executable_path = PATH, chrome_options=options)
 sleep(3)
 
-usuario = "SEU_USER"
-senha = "SUA_SENHA"
+usuario = ""
+senha = ""
 
 # botão logar com facebook
 
@@ -68,20 +71,22 @@ paginas = []
 
 #entrar em cada livro de cada pagina e guardar estatisticas
 try:
-       
+    #Passando por cada página, cada uma delas contém 36 registros   
     for j in range(0,next_pages+1,1):
-    
+        print("Página:",j)
+        #Passando por cada livro
         for i in range(1,36+1,1):
-            #print(i)
+            print("Livro:",i)
 
             if j>0:
+                # Botão de cada virada de página
                 driver.find_element_by_xpath("//*[@id='corpo']/div/div[4]/div[2]/div[3]/div[2]/ul/li["+str(3+j)+"]/a").click()
                 sleep(2)
-
+            # Clicando em cada livro
             driver.find_element_by_xpath("//*[@id='corpo']/div/div[4]/div[2]/div[2]/ul/li["+str(i)+"]/div/div[3]/a/div[2]/img").click()
 
             sleep(1)
-            #Coletando estatisticas de cada livro
+            #Coletando estatisticas de cada livro para o nome
             rating.append(driver.find_element_by_xpath("//*[@id='pg-livro-box-rating']/span").text)
             num_aval.append( (driver.find_element_by_xpath("//*[@id='pg-livro-box-rating-avaliadores-numero']").text.replace(' avaliações', '').replace('.','') ) )
             
@@ -112,6 +117,7 @@ try:
             paginas.append(re.findall("\d+", page)[0]) #extraindo apenas o numero
                      
             sleep(2) 
+            #Volta para a página anterior depois de coletar as estatísticas
             driver.back()
             sleep(1)
 
@@ -143,16 +149,5 @@ tabela_consolidada = pd.DataFrame(
      'paginas': paginas,
     })
     
-tabela_consolidada.to_csv('C:/Users/mathe/OneDrive/Documentos/python_bot/Bot/livros.csv', index=False)
-
-
-
-
-
-
-
-
-
-
-
-
+tabela_consolidada.to_csv('C:\GIT\Skoob_Leituras\Bases\livros_'+ str(datetime.now().strftime('%d_%m_%Y')) +'.csv', 
+                          index=False)
