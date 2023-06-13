@@ -1,4 +1,4 @@
-from selenium import webdriver
+from selenium import webdriver # usei a versão pip install selenium==4.2.0
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from time import sleep
@@ -7,19 +7,23 @@ import re
 import pandas as pd
 import csv
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # take environment variables from .env.
 
 url_code = 'https://www.skoob.com.br/login/'
 
 PATH = 'C:/GIT/Skoob_Leituras/Driver/chromedriver.exe'
 options = webdriver.ChromeOptions()
 options.add_experimental_option("detach", True)
-driver = webdriver.Chrome(chrome_options=options, service=Service(ChromeDriverManager().install()))
+driver = webdriver.Chrome(chrome_options=options,service=Service(ChromeDriverManager().install()))
 
 #driver = webdriver.Chrome(executable_path = PATH, chrome_options=options)
 sleep(3)
 
-usuario = ""
-senha = ""
+usuario = os.getenv("usuario")
+senha = os.getenv("senha")
 
 # botão logar com facebook
 
@@ -72,10 +76,10 @@ paginas = []
 #entrar em cada livro de cada pagina e guardar estatisticas
 try:
     #Passando por cada página, cada uma delas contém 36 registros   
-    for j in range(0,next_pages+1,1):
-        print("Página:",j)
+    for j in range(0,next_pages+36,1):
+        print("Página:",j+1)
         #Passando por cada livro
-        for i in range(1,36+1,1):
+        for i in range(1,1+1,1):
             print("Livro:",i)
 
             if j>0:
@@ -115,14 +119,14 @@ try:
 
             page = geral[(geral.find('Páginas')): (geral.find('Páginas'))+19 ]
             paginas.append(re.findall("\d+", page)[0]) #extraindo apenas o numero
-                     
+
             sleep(2) 
             #Volta para a página anterior depois de coletar as estatísticas
             driver.back()
             sleep(1)
 
 except NoSuchElementException:
-    print("Terminado")
+    print("Terminado Livros")
 
 rating = list(map(float, rating))
 num_aval = list(map(int, num_aval))
@@ -133,6 +137,7 @@ abandonos = list(map(int, abandonos))
 resenhas = list(map(int, resenhas))
 ano = list(map(int, ano))
 paginas = list(map(int, paginas))
+
 
 tabela_consolidada = pd.DataFrame(
     {'nota': rating,
@@ -149,5 +154,37 @@ tabela_consolidada = pd.DataFrame(
      'paginas': paginas,
     })
     
-tabela_consolidada.to_csv('C:\GIT\Skoob_Leituras\Bases\livros_'+ str(datetime.now().strftime('%d_%m_%Y')) +'.csv', 
-                          index=False)
+tabela_consolidada.to_csv('C:\GIT\Skoob_Leituras\Bases\livros_'+ str(datetime.now().strftime('%d_%m_%Y')) +'.csv', index=False)
+
+# Coletar informações do autor
+
+# url_code1 = 'https://www.skoob.com.br/autor/lista/'
+
+# autor_genero = []
+# nascimento = []
+# local = []
+
+# try:
+#     for i in autor:
+#         # Página Escritóres
+#         print(i)
+#         driver.get(url_code1)
+#         sleep(1)
+#         driver.find_element_by_id("BuscaTag").send_keys(i)
+#         sleep(1)
+#         driver.find_element_by_xpath("//*[@id='corpo']/div[1]/form/input[2]").click()
+#         sleep(1)
+#         driver.find_element_by_xpath("//*[@id='corpo']/div[2]/div/div[2]/div[3]/div[1]/strong/a").click()
+#         sleep(2)
+#         driver.refresh()
+#         autor_genero.append(driver.find_element_by_xpath("//*[@id='box-generos']/text()[1]").text)
+#         nascimento.append(driver.find_element_by_xpath("//*[@id='box-generos']/text()[2]").text)
+#         local.append(driver.find_element_by_xpath("//*[@id='box-generos']/span/text()").text)
+#         sleep(2)
+#         driver.get(url_code1)
+        
+
+# except NoSuchElementException:
+#     print("Terminado Autor")
+
+# print(autor_genero)
